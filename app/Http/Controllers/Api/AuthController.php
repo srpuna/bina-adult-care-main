@@ -52,17 +52,8 @@ class AuthController extends Controller
 
             // Regenerate session for security
             session()->regenerate();
-
-            // For API requests, also provide a token
-            $token = null;
-            if ($request->wantsJson()) {
-                // Revoke any existing tokens
-                $user->tokens()->delete();
-                // Create new token
-                $token = $user->createToken('admin-token', ['admin'])->plainTextToken;
-            }
             
-            $response = [
+            return response()->json([
                 'success' => true,
                 'user' => [
                     'id' => $user->id,
@@ -70,14 +61,7 @@ class AuthController extends Controller
                     'email' => $user->email,
                     'role' => $admin->role
                 ]
-            ];
-
-            // Only include token if it was generated
-            if ($token) {
-                $response['token'] = $token;
-            }
-            
-            return response()->json($response, 200);
+            ], 200);
         } catch (\Exception $e) {
             // Log the error for debugging
             \Log::error('Login error: ' . $e->getMessage());
